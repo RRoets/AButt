@@ -1,12 +1,26 @@
 #include "Arduino.h"
 #include "AButt.h"
 
-AButt::AButt(int pin, bool intPullup, bool isDigital, bool inv, int debounce){
-	_pin = pin;
-	_intPullup = intPullup;
-	_isDigital = isDigital;
-	_inv = inv;
-	_debounce = debounce;
+AButt::AButt(int pin, bool intPullup, bool isDigital, bool inv, int debounce):
+	_pin(pin),
+	_intPullup(intPullup),
+	_isDigital(isDigital),
+	_inv(inv),
+	_debounce(debounce),
+	_isPressed(inv),
+	_isHold(false),
+	_wasPressed(false),
+	_wasHeld(false),
+	_lastState(inv),
+	_lastHoldState(false),
+	_startLastPress(0),
+	_startLastPressInc(0),
+	_startLastRelease(0),
+	_holdTime(0),
+	_posFlankCallback(NULL),
+	_negFlankCallback(NULL),
+	_holdCallback(NULL)
+{
 	if(_intPullup){
 		pinMode(_pin, INPUT_PULLUP);
 	}else{
@@ -57,16 +71,7 @@ bool AButt::getDirectState(){
 
 void AButt::update(){
 	//Check the real button state
-	bool state;
-	if(_isDigital){
-		state = digitalRead(_pin);
-	}else{
-		state = analogRead(_pin)>512;
-	}
-
-	if(_inv){
-		state = !state;
-	}
+	bool state = getDirectState();
 	
 	//Manage _isPressed var
 	if(state){
