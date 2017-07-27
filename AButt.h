@@ -36,7 +36,6 @@ class AButt
 	void (*_posFlankCallback)(void);
 	void (*_negFlankCallback)(void);
 	void (*_holdCallback)(void);
-	
 };
 
 #endif	
